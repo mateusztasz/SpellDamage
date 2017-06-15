@@ -1,6 +1,6 @@
 import unittest
-from spell_damage import damage
-
+from spell_damage import damage, swap
+from collections import OrderedDict
 
 class TestDamageComputation(unittest.TestCase):
 
@@ -66,6 +66,18 @@ class TestDamageComputation(unittest.TestCase):
         inStr = 'fedaidaidaiai'
         expected_result = 18
         self.assertEqual(damage(inStr), expected_result)
+
+
+
+    def test_swap(self):
+        dictionary = OrderedDict()
+        dictionary['first'] = 1
+        dictionary['second'] = 2
+        dictionary['third'] = 3
+        dictionary['fourth'] = 4
+        dictionary['fifth'] = 5
+
+        swap(dictionary, 1, 3)
 
 if __name__ == '__main__':
     unittest.main()

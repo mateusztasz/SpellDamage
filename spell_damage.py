@@ -1,7 +1,22 @@
 from collections import OrderedDict
 
-START = 'fe'
-END = 'ai'
+boundingSubspell = dict()
+START = 'START'
+END = "END"
+boundingSubspell = {START:
+                        {'spell': 'fe',
+                         'value': 1},
+                    END:
+                        {'spell': 'ai',
+                         'value': 2}}
+
+globalSubspells = OrderedDict()
+globalSubspells['dai'] = 5
+globalSubspells['jee'] = 3
+globalSubspells['ain'] = 3
+globalSubspells['je'] = 2
+globalSubspells['ne'] = 2
+globalSubspells['ai'] = 2
 
 
 def run(spell, subspells):
@@ -12,15 +27,15 @@ def run(spell, subspells):
     :return: points of damage
     """
     result = 0
-    print("TEST: ", spell)
+    # print("TEST: ", spell)
     spell = spell.strip()
-    start = spell.find(START)
+    start = spell.find(boundingSubspell[START]['spell'])
 
     # no 'fe'
     if start == -1:
         return 0
 
-    end = spell.rfind(END)
+    end = spell.rfind(boundingSubspell[END]['spell'])
     # 'no 'ai'
     if end == -1:
         return 0
@@ -29,35 +44,28 @@ def run(spell, subspells):
     if start > end:
         return 0
 
-    spell = spell[start + len(START):end]
+    spell = spell[start + len(boundingSubspell[START]['spell']):end]
 
     # add points for 'fe' (+1) and 'ai' (+2)
-    result += 3
+    result += boundingSubspell[START]['value'] + boundingSubspell[END]['value']
 
     # multiple 'fe'
-    if spell.find(START) >= 0:
+    if spell.find(boundingSubspell[START]['spell']) >= 0:
         return 0
 
     # the rest of spell - the inside to analyse
-    print('spell :', spell)
-    cont = False
+    startFindingFromBeginningKey = False
     for key in subspells.keys():
 
-        if cont:
+        if startFindingFromBeginningKey:
             key = list(subspells.keys())[0]
-            cont = False
+            startFindingFromBeginningKey = False
 
-        print("SZUKAM: ", key)
         start = spell.find(key)
         if start >= 0:
-            print('FOUND KEY: ', key)
-            #print('POCZATEK:', spell[0:start], 'start:', start)
-            #print('KONIEC:', spell[start + len(key):])
-            #spell = spell[0:start] + spell[start + len(key):]
-            spell = spell[0:start] + " "*len(key) + spell[start + len(key):]
+            spell = spell[0:start] + " " * len(key) + spell[start + len(key):]
             result += subspells[key]
-
-            cont = True
+            startFindingFromBeginningKey = True
 
     # subtract result by number of left letter
     for char in spell:
@@ -73,87 +81,54 @@ def run(spell, subspells):
 
 def damage(spell):
     result = list()
-    subspells = OrderedDict()
 
     # original order
-    subspells['dai'] = 5
-    subspells['jee'] = 3
-    subspells['ain'] = 3
-    subspells['je'] = 2
-    subspells['ne'] = 2
-    subspells['ai'] = 2
+    subspells = globalSubspells
     result.append(run(spell, subspells))
 
-    subspells = OrderedDict()
     # je -> jee (zamiana)
-    subspells['dai'] = 5
-    subspells['je'] = 2
-    subspells['ain'] = 3
-    subspells['jee'] = 3
-    subspells['ne'] = 2
-    subspells['ai'] = 2
+    subspells = swap(subspells, 1, 3)
     result.append(run(spell, subspells))
 
-    subspells = OrderedDict()
     # ne -> ain (zamiana)
-    subspells['dai'] = 5
-    subspells['jee'] = 3
-    subspells['ne'] = 2
-
-    subspells['je'] = 2
-    subspells['ain'] = 3
-    subspells['ai'] = 2
+    subspells = swap(subspells, 2, 4)
     result.append(run(spell, subspells))
 
-    subspells = OrderedDict()
     # ai -> ain (zamiana)
-    subspells['dai'] = 5
-    subspells['jee'] = 3
-    subspells['ai'] = 2
-
-    subspells['je'] = 2
-    subspells['ne'] = 2
-    subspells['ain'] = 3
+    subspells = swap(subspells, 2, 5)
     result.append(run(spell, subspells))
 
-    subspells = OrderedDict()
     # ai -> dai
-
-    subspells['ai'] = 2
-    subspells['jee'] = 3
-    subspells['ain'] = 3
-    subspells['je'] = 2
-    subspells['ne'] = 2
-    subspells['dai'] = 5
+    subspells = swap(subspells, 0, 5)
     result.append(run(spell, subspells))
 
-    subspells = OrderedDict()
     # ain -> dai (zamiana)
-    subspells['ain'] = 3
-    subspells['jee'] = 3
-    subspells['dai'] = 5
-
-    subspells['je'] = 2
-    subspells['ne'] = 2
-    subspells['ai'] = 2
+    subspells = swap(subspells, 0, 2)
     result.append(run(spell, subspells))
 
     return max(result)
 
 
+def swap(collection, indexFirst, indexSecond):
+    keys = list(collection.keys())
+    values = list(collection.values())
+
+    newCollection = OrderedDict()
+    for index in range(0, len(collection)):
+        if index is indexFirst:
+            newCollection[keys[indexSecond]] = values[indexSecond]
+        elif index is indexSecond:
+            newCollection[keys[indexFirst]] = values[indexFirst]
+        else:
+            newCollection[keys[index]] = values[index]
+
+    return newCollection
+
+
+def findCorelations(colection):
+    pass
+
+
 if __name__ == '__main__':
     d = damage('feaineain')
     print(d)
-'''
-  subspells = OrderedDict()
-
-  subspells['dai'] = 5
-  subspells['jee'] = 3
-  subspells['ai'] = 2
-
-  subspells['je'] = 2
-  subspells['ne'] = 2
-  subspells['ain'] = 3
-  r= run("feaineai")
-  print(r)
-  '''
