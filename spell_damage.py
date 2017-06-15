@@ -13,6 +13,7 @@ def run(spell, subspells):
     """
     result = 0
     print("TEST: ", spell)
+    spell = spell.strip()
     start = spell.find(START)
 
     # no 'fe'
@@ -52,13 +53,16 @@ def run(spell, subspells):
             print('FOUND KEY: ', key)
             #print('POCZATEK:', spell[0:start], 'start:', start)
             #print('KONIEC:', spell[start + len(key):])
-            spell = spell[0:start] + spell[start + len(key):]
-            print('spell in if: ', spell)
+            #spell = spell[0:start] + spell[start + len(key):]
+            spell = spell[0:start] + " "*len(key) + spell[start + len(key):]
             result += subspells[key]
+
             cont = True
 
-    result -= len(spell)
-    print('usuwam: ', len(spell))
+    # subtract result by number of left letter
+    for char in spell:
+        if not char.isspace():
+            result -= 1
 
     # negative damage
     if result < 0:
