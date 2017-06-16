@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import List, Dict
 
 boundingSubspell = dict()
 START = 'START'
@@ -19,10 +20,36 @@ globalSubspells['ne'] = 2
 globalSubspells['ai'] = 2
 
 
-def run(spell, subspells):
+def damage(spell: str) -> int:
     """
-    Function calculating damage
+    Function calculating global damage
     :param str spell: string with spell
+    :rtype: int
+    :return: points of damage
+    """
+    result = list()
+
+    # original order
+    subspells = globalSubspells
+
+    table_of_correations = [None, (1, 3), (2, 4), (2, 5), (0, 5), (0, 2)]
+    # TODO table_of_correations = findCorrelations(subspells)
+
+    # for each item in table of correalations, swap element and compute damage
+    for elem in table_of_correations:
+        if elem is not None:
+            subspells = swap(subspells, elem[0], elem[1])
+        result.append(run(spell, subspells))
+
+    # return maximum value
+    return max(result)
+
+
+def run(spell: str, subspells: Dict[str, int]) -> int:
+    """
+    Function calculating local damage
+    :param str spell: string with spell
+    :param OrderedDict[str, int] subspells: subspells with damage
     :rtype: int
     :return: points of damage
     """
@@ -79,37 +106,16 @@ def run(spell, subspells):
     return result
 
 
-def damage(spell):
-    result = list()
+def swap(collection: dict, indexFirst: int, indexSecond: int) -> Dict:
+    """
+    Function swaping items in OrderedDict
+    :param OrderedDict collection: dictionary with objects
+    :param int indexFirst: index of first element to swap
+    :param intindexSecond: index of second element to swap
+    :rtype: OrderedDict
+    :return: new dictionary with swapped elements
+    """
 
-    # original order
-    subspells = globalSubspells
-    result.append(run(spell, subspells))
-
-    # je -> jee (zamiana)
-    subspells = swap(subspells, 1, 3)
-    result.append(run(spell, subspells))
-
-    # ne -> ain (zamiana)
-    subspells = swap(subspells, 2, 4)
-    result.append(run(spell, subspells))
-
-    # ai -> ain (zamiana)
-    subspells = swap(subspells, 2, 5)
-    result.append(run(spell, subspells))
-
-    # ai -> dai
-    subspells = swap(subspells, 0, 5)
-    result.append(run(spell, subspells))
-
-    # ain -> dai (zamiana)
-    subspells = swap(subspells, 0, 2)
-    result.append(run(spell, subspells))
-
-    return max(result)
-
-
-def swap(collection, indexFirst, indexSecond):
     keys = list(collection.keys())
     values = list(collection.values())
 
@@ -125,7 +131,7 @@ def swap(collection, indexFirst, indexSecond):
     return newCollection
 
 
-def findCorelations(colection):
+def findCorelations(colection: dict) -> list:
     pass
 
 
